@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>📊 Dashboard Basurero Inteligente</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.6.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+</head>
+
+<body class="bg-gray-100 font-sans text-gray-800">
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center mb-6">🗑️ Dashboard de Basurero Inteligente</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="bg-white rounded-xl shadow p-5">
+        <h2 class="text-lg font-semibold flex items-center gap-2">
+          📏 Distancia
+        </h2>
+        <p id="distancia" class="text-3xl font-bold text-center mt-3">--</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h2 class="text-lg font-semibold flex items-center gap-2">
+          🔍 Estado
+        </h2>
+        <p id="estado" class="text-3xl font-bold text-center mt-3">--</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <h2 class="text-lg font-semibold flex items-center gap-2">
+          ⚙️ Ángulo Servo
+        </h2>
+        <p id="servo" class="text-3xl font-bold text-center mt-3">--</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl shadow p-4 flex flex-col items-center justify-center">
+        <h3 class="text-md font-semibold mb-2">🎥 Cámara</h3>
+        <video id="video" autoplay playsinline class="rounded-md w-full h-60 bg-gray-200"></video>
+        <p id="info" class="mt-2 text-gray-500 text-sm">Cargando cámara...</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-4 flex flex-col items-center justify-center">
+        <h3 class="text-md font-semibold mb-2">📍 GPS</h3>
+        <p id="instrucciones" class="text-gray-600 mb-2 text-center">Presiona el botón para enviar tu ubicación.</p>
+        <button id="sendLocationBtn"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Enviar mi ubicación</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Funciones JS -->
+  <script>
+    const video = document.getElementById('video');
+    const info = document.getElementById('info');
+    const instruccionesDiv = document.getElementById('instrucciones');
+    const sendLocationBtn = document.getElementById('sendLocationBtn');
+
+    async function setupCamera() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      video.srcObject = stream;
+      return new Promise(resolve => {
+        video.onloadedmetadata = () => resolve(video);
+      });
+    }
+
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        speechSynthesis.speak(utterance);
+      }
+    }
+
+    async function startObjectDetection(model) {
+      async function detectFrame() {
+        const predictions = await model.detect(video);
+        if (predictions.length > 0) {
+          const objetos = predictions.map(p => p.class).join(', ');
+          info.textContent = `Objetos detectados: ${objetos}`;
+          speak(`Detectado: ${objetos}`);
+        } else {
+          info.textContent = 'No se detectan objetos.';
+        }
+        setTimeout(detectFrame, 4000);
+      }
+      detectFrame();
+    }
+
+    sendLocationBtn.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        alert('Geolocalización no soportada.');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+        instruccionesDiv.textContent = 'Enviando ubicación...';
+        fetch('/ruta', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lat: latitude, lon: longitude })
+        })
+          .then(res => res.json())
+          .then(data => {
+            instruccionesDiv.textContent = data.instrucciones.join(' ');
+            speak(data.instrucciones.join(' '));
+          })
+          .catch(() => {
+            instruccionesDiv.textContent = 'Error enviando ubicación.';
+          });
+      });
+    });
+
+    async function actualizar() {
+      const res = await fetch("/datos");
+      const data = await res.json();
+      document.getElementById("distancia").innerText = data.distancia + " cm";
+      document.getElementById("estado").innerText = data.detecto ? "Basura Detectada" : "Sin basura";
+      document.getElementById("servo").innerText = data.servo + "°";
+    }
+
+    async function main() {
+      await setupCamera();
+      const model = await cocoSsd.load();
+      info.textContent = 'Modelo de detección cargado.';
+      startObjectDetection(model);
+    }
+
+    setInterval(actualizar, 1000);
+    main();
+  </script>
+</body>
+
+</html>

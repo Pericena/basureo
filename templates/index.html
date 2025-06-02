@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Hola Mundo Arduino Flask</title>
+  <script>
+    async function actualizar() {
+      const res = await fetch("/mensaje");
+      const data = await res.json();
+      document.getElementById("mensaje").innerText = data.mensaje;
+    }
+    setInterval(actualizar, 1000);
+  </script>
+</head>
+<body>
+  <h1>📡 Hola desde Arduino</h1>
+  <p><strong>Mensaje:</strong> <span id="mensaje">--</span></p>
+</body>
+</html>
