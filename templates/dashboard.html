@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>📊 Dashboard Basurero Inteligente</title>
+  <title>Basurero Inteligente</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.6.0"></script>
@@ -12,52 +12,336 @@
 </head>
 
 <body class="bg-gray-100 font-sans text-gray-800">
-  <div class="max-w-5xl mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-center mb-6">🗑️ Dashboard de Basurero Inteligente</h1>
+  <!DOCTYPE html>
+  <html lang="es">
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      <div class="bg-white rounded-xl shadow p-5">
-        <h2 class="text-lg font-semibold flex items-center gap-2">
-          📏 Distancia
-        </h2>
-        <p id="distancia" class="text-3xl font-bold text-center mt-3">--</p>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basurero Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gradient-to-br from-green-50 to-white font-sans min-h-screen">
+    <!-- Barra de navegación tipo app móvil con color #37832D -->
+    <nav class="relative bg-[#37832D] text-white py-4 px-6 shadow flex items-center justify-between">
+      <!-- Izquierda: Logo -->
+      <div class="flex items-center gap-3">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="UDI Logo" class="w-10 h-10 rounded-full" />
       </div>
-      <div class="bg-white rounded-xl shadow p-5">
-        <h2 class="text-lg font-semibold flex items-center gap-2">
-          🔍 Estado
-        </h2>
-        <p id="estado" class="text-3xl font-bold text-center mt-3">--</p>
+
+      <!-- Título centrado absoluto -->
+      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+        <span class="text-lg font-bold select-none">Universidad para el Desarrollo y la Innovación</span>
       </div>
-      <div class="bg-white rounded-xl shadow p-5">
-        <h2 class="text-lg font-semibold flex items-center gap-2">
-          ⚙️ Ángulo Servo
-        </h2>
-        <p id="servo" class="text-3xl font-bold text-center mt-3">--</p>
+
+      <!-- Derecha: Menú y botón hamburguesa -->
+      <div class="flex items-center gap-6">
+        <button id="menu-toggle" class="md:hidden text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        <div class="hidden md:flex gap-6">
+          <a href="/" class="hover:underline">Inicio</a>
+        </div>
       </div>
+    </nav>
+
+    <!-- Menú móvil desplegable -->
+    <div id="mobile-menu" class="md:hidden hidden px-6 py-4 bg-[#37832D] text-white shadow">
+      <a href="/" class="block py-2">Inicio</a>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="bg-white rounded-xl shadow p-4 flex flex-col items-center justify-center">
-        <h3 class="text-md font-semibold mb-2">🎥 Cámara</h3>
-        <video id="video" autoplay playsinline class="rounded-md w-full h-60 bg-gray-200"></video>
-        <p id="info" class="mt-2 text-gray-500 text-sm">Cargando cámara...</p>
+
+
+    <script>
+      const toggle = document.getElementById('menu-toggle');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      toggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    </script>
+
+
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      <!-- Cabecera -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-green-800 mb-2">🌿 Dashboard de Basurero Inteligente</h1>
+        <p class="text-green-700 text-md">Tecnología al servicio del medio ambiente - Proyecto educativo UDI</p>
       </div>
 
-      <div class="bg-white rounded-xl shadow p-4 flex flex-col items-center justify-center">
-        <h3 class="text-md font-semibold mb-2">📍 GPS</h3>
-        <p id="instrucciones" class="text-gray-600 mb-2 text-center">Presiona el botón para enviar tu ubicación.</p>
-        <button id="sendLocationBtn"
-          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Enviar mi ubicación</button>
+
+      <!-- Métricas -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
+          <h3 class="text-green-700 font-semibold mb-2">📏 Distancia</h3>
+          <p id="distancia" class="text-3xl text-center font-bold text-green-900">--</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-yellow-500">
+          <h3 class="text-yellow-600 font-semibold mb-2">🔍 Estado</h3>
+          <p id="estado" class="text-3xl text-center font-bold text-yellow-800">--</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+          <h3 class="text-blue-600 font-semibold mb-2">⚙️ Ángulo Servo</h3>
+          <p id="servo" class="text-3xl text-center font-bold text-blue-800">--</p>
+        </div>
       </div>
+
+
+      <!-- Instrucciones -->
+      <div class="bg-white shadow-lg rounded-xl p-6 mb-8">
+        <h2 class="text-lg font-semibold text-green-700 mb-2">📝 Instrucciones de Uso</h2>
+        <ul class="list-disc list-inside text-gray-700">
+          <li>Verifica la distancia al sensor para comprobar si el basurero está lleno.</li>
+          <li>Consulta el estado del sistema y el ángulo actual del servo.</li>
+          <li>Activa la cámara para monitoreo visual en tiempo real.</li>
+          <li>Envía tu ubicación para trazar rutas ecológicas de recolección.</li>
+        </ul>
+      </div>
+
+      <!-- Radar -->
+      <div class="bg-white rounded-xl shadow-md p-6 mb-8 border-l-4 border-green-400 flex flex-col items-center">
+        <h3 class="text-xl font-semibold text-green-700 mb-4">📡 Radar de Proximidad</h3>
+
+        <div class="relative w-64 h-64">
+          <svg width="100%" height="100%" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="90" fill="#e6f4ea" stroke="#c1e1c1" stroke-width="2" />
+            <line x1="100" y1="100" id="radarLine" x2="100" y2="10" stroke="green" stroke-width="4"
+              stroke-linecap="round" />
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center text-xl font-bold text-green-800">
+            <span id="radarValor">-- cm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cámara y GPS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500 flex flex-col items-center">
+          <h3 class="text-lg font-semibold text-purple-700 mb-2">🎥 Cámara</h3>
+          <video id="video" autoplay playsinline class="rounded-md w-full h-60 bg-gray-100 shadow-inner"></video>
+          <p id="info" class="mt-2 text-gray-500 text-sm">Cargando cámara...</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-indigo-500 flex flex-col items-center">
+          <h3 class="text-lg font-semibold text-indigo-700 mb-2">📍 GPS</h3>
+          <p id="instrucciones" hidden class="text-gray-700 mb-3 text-center">Presiona el botón para mostrar tu ubicación.</p>
+          <button id="sendLocationBtn" hidden
+            class="px-6 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition shadow mb-4">
+            Enviar mi ubicación
+          </button>
+          <div id="map" class="w-full h-96 rounded-xl shadow border border-gray-200"></div>
+        </div>
+      </div>
+
+      <!-- Agrega esto en el <head> de tu HTML -->
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <script>
+        // Coordenadas aproximadas del campus UDI (Santa Cruz)
+        const centroUDI = [-17.7845, -63.1827]
+
+        // Inicializamos el mapa centrado en la UDI con zoom apropiado para todo el campus
+        const map = L.map('map').setView(centroUDI, 16)
+
+        // Tiles OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        }).addTo(map)
+
+        // Facultades UDI con marcadores y nombres
+        const facultadesUDI = [
+          { nombre: 'Facultad de Ingeniería', lat: -17.7849, lng: -63.1825 },
+          { nombre: 'Facultad de Ciencias Sociales', lat: -17.7838, lng: -63.1833 },
+          { nombre: 'Facultad de Arquitectura', lat: -17.7853, lng: -63.1839 },
+          { nombre: 'Facultad de Ciencias Empresariales', lat: -17.7850, lng: -63.1814 },
+          { nombre: 'Biblioteca Central', lat: -17.7840, lng: -63.1820 },
+          // Puedes agregar más ubicaciones si las tienes
+        ]
+
+        // Agregamos marcadores sin abrir todos los popups automáticamente
+        facultadesUDI.forEach((lugar) => {
+          L.marker([lugar.lat, lugar.lng])
+            .addTo(map)
+            .bindPopup(`<b>${lugar.nombre}</b>`)
+        })
+
+        // Variable para guardar el marcador de usuario y evitar duplicados
+        let userMarker = null
+
+        // Botón para mostrar ubicación del usuario
+        document.getElementById('sendLocationBtn').addEventListener('click', () => {
+          if (!navigator.geolocation) {
+            alert('Tu navegador no soporta geolocalización.')
+            return
+          }
+
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const lat = position.coords.latitude
+              const lng = position.coords.longitude
+
+              // Si ya hay un marcador de usuario, lo eliminamos para actualizar
+              if (userMarker) {
+                map.removeLayer(userMarker)
+              }
+
+              // Creamos nuevo marcador con icono personalizado
+              userMarker = L.marker([lat, lng], {
+                icon: L.icon({
+                  iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+                  iconSize: [32, 32],
+                  iconAnchor: [16, 32], // para que el icono apunte bien
+                }),
+              }).addTo(map)
+
+              userMarker.bindPopup('<b>📍 Tú estás aquí</b>').openPopup()
+              map.setView([lat, lng], 17)
+
+              document.getElementById('instrucciones').innerText = 'Ubicación detectada correctamente.'
+            },
+            (error) => {
+              console.error(error)
+              alert('No se pudo obtener tu ubicación.')
+            }
+          )
+        })
+      </script>
+
+
+
+
+      <footer class="bg-[#2E7D32] text-center text-sm text-white">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+          <h4 class="text-lg font-semibold mb-2">Comprometidos con el Desarrollo Sostenible</h4>
+          <p class="text-sm mb-4">
+            Este proyecto apoya los Objetivos de Desarrollo Sostenible:
+            <span class="font-bold">ODS 11</span>,
+            <span class="font-bold">ODS 12</span> y
+            <span class="font-bold">ODS 13</span>.
+          </p>
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Iconos ODS"
+            class="mx-auto w-40 rounded shadow-md">
+
+          <div class="mt-6 text-xs text-gray-200">
+            &copy; {{ year }} UDI - Todos los derechos reservados.
+          </div>
+        </div>
+      </footer>
+
+
+    </main>
+
+
+    <!-- Botón flotante para abrir el chat -->
+    <button id="chatToggleBtn"
+      class="fixed bottom-20 right-4 bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition z-50">
+      💬
+    </button>
+
+    <!-- Ventana flotante del chat -->
+    <div id="chatWindow"
+      class="fixed bottom-28 right-4 w-80 bg-white rounded-xl shadow-xl p-4 hidden flex flex-col z-40">
+      <div class="flex justify-between items-center mb-2">
+        <h4 class="text-green-700 font-bold">EcoBot 🌿</h4>
+        <button id="closeChat" class="text-red-400 hover:text-red-600 text-xl">&times;</button>
+      </div>
+      <div id="chatMessages" class="flex-1 overflow-y-auto max-h-64 space-y-2 text-sm mb-2"></div>
+      <form id="chatForm" class="flex gap-2">
+        <input type="text" id="chatInput" placeholder="¿Cómo reciclo vidrio?"
+          class="flex-1 border rounded px-2 py-1 text-sm focus:outline-none" />
+        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Enviar</button>
+      </form>
     </div>
-  </div>
 
-  <!-- Funciones JS -->
+
+  </body>
+
+  </html>
+
+  <script>
+    const chatToggleBtn = document.getElementById('chatToggleBtn');
+    const chatWindow = document.getElementById('chatWindow');
+    const closeChat = document.getElementById('closeChat');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const chatMessages = document.getElementById('chatMessages');
+
+    chatToggleBtn.addEventListener('click', () => {
+      chatWindow.classList.toggle('hidden');
+    });
+
+    closeChat.addEventListener('click', () => {
+      chatWindow.classList.add('hidden');
+    });
+
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const question = chatInput.value.trim();
+      if (!question) return;
+
+      appendMessage('👤', question);
+      chatInput.value = '';
+
+      appendMessage('🤖', 'Pensando...');
+      setTimeout(() => {
+        const thinkingMsg = chatMessages.querySelector('div:last-child');
+        if (thinkingMsg) thinkingMsg.remove();
+
+        const answer = getEcoAnswer(question);
+        appendMessage('🤖', answer);
+      }, 1000);
+    });
+
+    function appendMessage(sender, text) {
+      const msg = document.createElement('div');
+      msg.innerHTML = `<strong>${sender}</strong>: ${text}`;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return msg;
+    }
+
+    function getEcoAnswer(question) {
+      const q = question.toLowerCase();
+
+      if (q.includes('hola') || q.includes('buenos días')) {
+        return '¡Hola! Estoy aquí para ayudarte con todo sobre reciclaje y basura ecológica.';
+      }
+      if (q.includes('qué es basura ecológica') || q.includes('qué es basura orgánica')) {
+        return 'La basura ecológica o basura orgánica son residuos biodegradables como restos de comida, hojas y papel que pueden convertirse en compost.';
+      }
+      if (q.includes('cómo reciclar') || q.includes('reciclaje')) {
+        return 'Para reciclar correctamente, separa plásticos, papel, vidrio y metales, y deposítalos en contenedores adecuados.';
+      }
+      if (q.includes('qué no se puede reciclar')) {
+        return 'No se pueden reciclar residuos como pilas, productos electrónicos o basura mezclada con materia orgánica. Estos deben llevarse a puntos especiales.';
+      }
+      if (q.includes('beneficios del reciclaje')) {
+        return 'Reciclar ayuda a reducir la contaminación, ahorrar recursos naturales y proteger el medio ambiente.';
+      }
+      if (q.includes('cómo reducir basura')) {
+        return 'Puedes reducir basura usando menos plásticos de un solo uso, reutilizando objetos y comprando productos con empaques reciclables.';
+      }
+      if (q.includes('adiós') || q.includes('hasta luego')) {
+        return '¡Gracias por cuidar el planeta! Hasta luego y sigue reciclando.';
+      }
+      return 'Lo siento, no entiendo tu pregunta. Pero puedo ayudarte con temas sobre basura ecológica y reciclaje.';
+    }
+  </script>
+
+
+
   <script>
     const video = document.getElementById('video');
     const info = document.getElementById('info');
     const instruccionesDiv = document.getElementById('instrucciones');
     const sendLocationBtn = document.getElementById('sendLocationBtn');
+    const radarLine = document.getElementById('radarLine');
+    const radarValor = document.getElementById('radarValor');
 
     async function setupCamera() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
@@ -67,28 +351,90 @@
       });
     }
 
+
     function speak(text) {
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'es-ES';
-        speechSynthesis.speak(utterance);
-      }
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'es-ES';
+      utter.pitch = 1.1;
+      utter.rate = 1;
+      speechSynthesis.speak(utter);
     }
+
+
+    // ✅ Lista de objetos considerados basura
+    const objetosBasura = [
+      'bottle',      // botella
+      'cup',         // taza
+      'can',         // lata
+      'fork',        // tenedor
+      'knife',       // cuchillo
+      'spoon',       // cuchara
+      'banana',      // cáscara de banana
+      'apple',       // resto de manzana
+      'bowl',        // tazón
+      'plastic bag', // bolsa (si el modelo lo reconoce)
+      'book',        // puede representar papeles
+      'paper'        // si tu modelo lo reconoce
+    ];
+
+    // ✅ Traducciones para mostrar al usuario
+    const traducciones = {
+      bottle: 'botella',
+      cup: 'taza',
+      can: 'lata',
+      fork: 'tenedor',
+      knife: 'cuchillo',
+      spoon: 'cuchara',
+      banana: 'cáscara de banana',
+      apple: 'manzana',
+      bowl: 'tazón',
+      'plastic bag': 'bolsa',
+      book: 'papeles',
+      paper: 'papel'
+    };
+
+    // ✅ Variables de control
+    let bienvenidaDicha = false;
+    let ultimoObjetoDetectado = '';
 
     async function startObjectDetection(model) {
       async function detectFrame() {
         const predictions = await model.detect(video);
-        if (predictions.length > 0) {
-          const objetos = predictions.map(p => p.class).join(', ');
-          info.textContent = `Objetos detectados: ${objetos}`;
-          speak(`Detectado: ${objetos}`);
-        } else {
-          info.textContent = 'No se detectan objetos.';
+
+        // 👋 Bienvenida solo una vez
+        if (!bienvenidaDicha) {
+          speak('Bienvenido al basurero inteligente');
+          bienvenidaDicha = true;
         }
-        setTimeout(detectFrame, 4000);
+
+        // 🎯 Filtrar objetos que estén en la lista de basura
+        const basuraDetectada = predictions
+          .map(p => p.class)
+          .filter(obj => objetosBasura.includes(obj));
+
+        // ✨ Solo si hay basura
+        if (basuraDetectada.length > 0) {
+          const objetosUnicos = [...new Set(basuraDetectada)];
+
+          // Evitar repetir la misma detección
+          const keyActual = objetosUnicos.sort().join(','); // clave única
+          if (keyActual !== ultimoObjetoDetectado) {
+            const traducidos = objetosUnicos.map(o => traducciones[o] || o).join(', ');
+            info.textContent = `♻️ Basura detectada: ${traducidos}`;
+            speak(`Se detectó: ${traducidos}`);
+            ultimoObjetoDetectado = keyActual;
+          }
+        } else {
+          info.textContent = '🔍 No se detecta basura.';
+          ultimoObjetoDetectado = '';
+        }
+
+        setTimeout(detectFrame, 4000); // volver a ejecutar
       }
+
       detectFrame();
     }
+
 
     sendLocationBtn.addEventListener('click', () => {
       if (!navigator.geolocation) {
@@ -120,6 +466,14 @@
       document.getElementById("distancia").innerText = data.distancia + " cm";
       document.getElementById("estado").innerText = data.detecto ? "Basura Detectada" : "Sin basura";
       document.getElementById("servo").innerText = data.servo + "°";
+
+      const distancia = Math.min(data.distancia, 100);
+      const angulo = (distancia / 100) * 180; // convertir a grados
+      const x = 100 + 90 * Math.sin(angulo * Math.PI / 180);
+      const y = 100 - 90 * Math.cos(angulo * Math.PI / 180);
+      radarLine.setAttribute("x2", x);
+      radarLine.setAttribute("y2", y);
+      radarValor.innerText = data.distancia + " cm";
     }
 
     async function main() {
